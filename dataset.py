@@ -132,7 +132,7 @@ class SpikeDataset:
         """Load raw data as a pandas DataFrame."""
         return pd.read_parquet(self._get_filepath("parquet"))
 
-    def load_raw_tf(self, use_speed_mask: bool = True) -> tf.data.Dataset:
+    def load_raw_tf(self, use_speed_mask: bool = False) -> tf.data.Dataset:
         """Load and parse TFRecord into a tf.data.Dataset (unbatched).
 
         Each element is a dict with keys like group0, groups, pos, etc.
@@ -173,7 +173,7 @@ class SpikeDataset:
         self,
         batch_size: int = 256,
         val_split: float = 0.2,
-        use_speed_mask: bool = True,
+        use_speed_mask: bool = False,
         shuffle_buffer: int = 4096,
         pos_dims: int = 2,
     ) -> Tuple[tf.data.Dataset, Optional[tf.data.Dataset]]:
