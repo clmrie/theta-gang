@@ -1,16 +1,83 @@
 import json
 import os
+import shutil
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+try:
+    import torch
+    from torch.utils.data import Dataset as _TorchDataset
+    _HAS_TORCH = True
+except ImportError:
+    _HAS_TORCH = False
+    _TorchDataset = object
+
 
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__dict__ = self
+
+
+class MmapSpikeDataset(_TorchDataset):
+    """Memory-mapped PyTorch dataset for spike data. Fork-safe for num_workers > 0."""
+
+    def __init__(self, mmap_dir: str, n_groups: int):
+        with open(os.path.join(mmap_dir, "meta.json"), "r") as f:
+            meta = json.load(f)
+        self._n_total = meta["n_total"]
+        self._n_groups = n_groups
+
+        # Fixed-length fields: mmap directly
+        self._pos = np.load(os.path.join(mmap_dir, "pos.npy"), mmap_mode="r")
+        self._length = np.load(os.path.join(mmap_dir, "length.npy"), mmap_mode="r")
+        self._time = np.load(os.path.join(mmap_dir, "time.npy"), mmap_mode="r")
+        self._time_behavior = np.load(os.path.join(mmap_dir, "time_behavior.npy"), mmap_mode="r")
+        self._pos_index = np.load(os.path.join(mmap_dir, "pos_index.npy"), mmap_mode="r")
+
+        # Variable-length fields: mmap data + load offsets into RAM (offsets are small)
+        self._var_data = {}
+        self._var_offsets = {}
+        var_fields = (
+            ["groups", "indexInDat"]
+            + [f"group{g}" for g in range(n_groups)]
+            + [f"indices{g}" for g in range(n_groups)]
+        )
+        for field in var_fields:
+            self._var_data[field] = np.load(
+                os.path.join(mmap_dir, f"{field}_data.npy"), mmap_mode="r"
+            )
+            self._var_offsets[field] = np.load(
+                os.path.join(mmap_dir, f"{field}_offsets.npy")
+            )
+
+    def __len__(self):
+        return self._n_total
+
+    def __getitem__(self, idx):
+        inputs = {}
+
+        inputs["length"] = torch.as_tensor(self._length[idx].copy())
+        inputs["time"] = torch.as_tensor(self._time[idx].copy())
+        inputs["time_behavior"] = torch.as_tensor(self._time_behavior[idx].copy())
+        inputs["pos_index"] = torch.as_tensor(self._pos_index[idx].copy())
+
+        for field in ["groups", "indexInDat"]:
+            lo = int(self._var_offsets[field][idx])
+            hi = int(self._var_offsets[field][idx + 1])
+            inputs[field] = torch.as_tensor(np.array(self._var_data[field][lo:hi]))
+
+        for g in range(self._n_groups):
+            for field in [f"group{g}", f"indices{g}"]:
+                lo = int(self._var_offsets[field][idx])
+                hi = int(self._var_offsets[field][idx + 1])
+                inputs[field] = torch.as_tensor(np.array(self._var_data[field][lo:hi]))
+
+        targets = torch.as_tensor(np.array(self._pos[idx]), dtype=torch.float32)
+        return inputs, targets
 
 
 class SpikeDataset:
@@ -249,29 +316,130 @@ class SpikeDataset:
 
         return train_ds, val_ds
 
-    def get_pytorch_batches(self, **kwargs):
-        """Wraps get_tf_dataset() and yields PyTorch tensors.
+    def _mmap_dir(self) -> str:
+        return os.path.join(
+            self.dataset_dir,
+            f"{self.mouse}_stride{self.stride}_win{self.window_size}_mmap",
+        )
 
-        Accepts the same kwargs as get_tf_dataset (batch_size, val_split, etc).
-        Returns (train_generator, val_generator). Each yields (inputs_dict, targets).
-        """
+    def preprocess(self, pos_dims: int = 2, force: bool = False):
+        """One-time: parse TFRecords and save as memory-mapped .npy files."""
+        mmap_dir = self._mmap_dir()
+        if os.path.isdir(mmap_dir) and not force:
+            print(f"Mmap cache already exists: {mmap_dir}")
+            return
+        if os.path.isdir(mmap_dir):
+            shutil.rmtree(mmap_dir)
+
+        os.makedirs(mmap_dir)
+        dataset = self.load_raw_tf(use_speed_mask=False)
+
+        fixed = {"pos": [], "length": [], "time": [], "time_behavior": [], "pos_index": []}
+        var_fields = (
+            ["groups", "indexInDat"]
+            + [f"group{g}" for g in range(self.n_groups)]
+            + [f"indices{g}" for g in range(self.n_groups)]
+        )
+        var_data = {k: [] for k in var_fields}
+        var_offsets = {k: [0] for k in var_fields}
+
+        count = 0
+        for example in dataset:
+            fixed["pos"].append(example["pos"].numpy()[:pos_dims])
+            for k in ["length", "time", "time_behavior", "pos_index"]:
+                fixed[k].append(example[k].numpy())
+            for k in var_fields:
+                arr = example[k].numpy()
+                var_data[k].append(arr)
+                var_offsets[k].append(var_offsets[k][-1] + arr.shape[0])
+            count += 1
+            if count % 10000 == 0:
+                print(f"  processed {count} examples...")
+
+        # Save fixed-length fields
+        for k, v in fixed.items():
+            np.save(os.path.join(mmap_dir, f"{k}.npy"), np.stack(v))
+
+        # Save variable-length fields (flat data + offset index)
+        for k in var_fields:
+            np.save(os.path.join(mmap_dir, f"{k}_data.npy"), np.concatenate(var_data[k], axis=0))
+            np.save(os.path.join(mmap_dir, f"{k}_offsets.npy"), np.array(var_offsets[k], dtype=np.int64))
+
+        meta = {
+            "n_total": count,
+            "pos_dims": pos_dims,
+            "n_groups": self.n_groups,
+            "n_channels_per_group": self.n_channels_per_group,
+        }
+        with open(os.path.join(mmap_dir, "meta.json"), "w") as f:
+            json.dump(meta, f, indent=2)
+
+        print(f"Done: {count} examples saved to {mmap_dir}")
+
+    def get_pytorch_dataset(self, val_split: float = 0.2, pos_dims: int = 2):
+        """Returns (train_dataset, val_dataset) backed by memory-mapped files."""
+        from torch.utils.data import Subset
+
+        mmap_dir = self._mmap_dir()
+        if not os.path.isdir(mmap_dir):
+            self.preprocess(pos_dims=pos_dims)
+
+        full_ds = MmapSpikeDataset(mmap_dir, self.n_groups)
+        n_total = len(full_ds)
+
+        if val_split > 0:
+            n_val = int(n_total * val_split)
+            n_train = n_total - n_val
+            train_ds = Subset(full_ds, range(n_train))
+            val_ds = Subset(full_ds, range(n_train, n_total))
+        else:
+            train_ds = full_ds
+            val_ds = None
+
+        return train_ds, val_ds
+
+    def collate_fn(self, batch):
+        """Pads variable-length fields in a batch. Use with DataLoader(collate_fn=ds.collate_fn)."""
         import torch
 
-        train_tf, val_tf = self.get_tf_dataset(**kwargs)
+        inputs_list, targets_list = zip(*batch)
+        targets = torch.stack(targets_list)
 
-        def _to_torch(tf_dataset):
-            if tf_dataset is None:
-                return None
-            def gen():
-                for inputs, targets in tf_dataset:
-                    pt_inputs = {
-                        k: torch.from_numpy(v.numpy()) for k, v in inputs.items()
-                    }
-                    pt_targets = torch.from_numpy(targets.numpy())
-                    yield pt_inputs, pt_targets
-            return gen
+        keys_scalar = ["length", "time", "time_behavior", "pos_index"]
+        keys_var = ["groups", "indexInDat"]
 
-        return _to_torch(train_tf), _to_torch(val_tf)
+        collated = {}
+        for k in keys_scalar:
+            collated[k] = torch.stack([inp[k] for inp in inputs_list])
+
+        for k in keys_var:
+            tensors = [inp[k] for inp in inputs_list]
+            max_len = max(t.shape[0] for t in tensors)
+            pad_val = -1
+            padded = torch.full((len(tensors), max_len), pad_val, dtype=tensors[0].dtype)
+            for i, t in enumerate(tensors):
+                padded[i, :t.shape[0]] = t
+            collated[k] = padded
+
+        for g in range(self.n_groups):
+            # group waveforms: (n_spikes, n_channels, 32) -> pad n_spikes dim
+            tensors = [inp[f"group{g}"] for inp in inputs_list]
+            max_spikes = max(t.shape[0] for t in tensors)
+            n_ch = self.n_channels_per_group[g]
+            padded = torch.full((len(tensors), max_spikes, n_ch, 32), -1.0)
+            for i, t in enumerate(tensors):
+                padded[i, :t.shape[0]] = t
+            collated[f"group{g}"] = padded
+
+            # indices: (total_spikes,) -> pad independently
+            idx_tensors = [inp[f"indices{g}"] for inp in inputs_list]
+            max_idx = max(t.shape[0] for t in idx_tensors)
+            padded = torch.zeros((len(idx_tensors), max_idx), dtype=idx_tensors[0].dtype)
+            for i, t in enumerate(idx_tensors):
+                padded[i, :t.shape[0]] = t
+            collated[f"indices{g}"] = padded
+
+        return collated, targets
 
     def summary(self) -> str:
         """Print a summary of the dataset configuration."""
