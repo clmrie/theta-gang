@@ -1,0 +1,19 @@
+[project]
+name = "HackathonStarter"
+version = "0.1.0"
+description = "Starter template for HacktionPotential - Brain in Real Time"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "ipykernel>=6.29.5",
+    "ipympl>=0.9.7",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.6.2",
+    "numba>=0.60.0",
+    "numpy<=2",
+    "pandas>=2.1.0",
+    "pyarrow>=23.0.0",
+    "pydot>=4.0.1",
+    "tensorflow",
+    "torch>=2.10.0",
+]

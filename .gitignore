@@ -1,0 +1,19 @@
+# Data
+dataset/
+
+# Python
+__pycache__/
+*.pyc
+
+# Env
+.venv/
+.env
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
+
+# Lockfile (large, reproducible from pyproject.toml)
+uv.lock
