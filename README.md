@@ -32,7 +32,11 @@ The U-maze is split into **3 zones** (Left / Top / Right arm) using a curvilinea
 Final position = zone-probability-weighted **Gaussian mixture** (law of total expectation / variance), producing both a mean `μ` and uncertainty `σ` per axis.
 
 ### Feasibility loss
-A custom `FeasibilityLoss` penalises predictions that fall **outside the corridor**: for each predicted point, the excess distance beyond the corridor half-width is squared and averaged. Weighted at λ = 10 to strongly constrain predictions to the maze geometry.
+A custom `FeasibilityLoss` penalises predictions that fall **outside the corridor**:
+
+$$\mathcal{L}_{\text{feas}} = \mathbb{E}\left[\max(0,\ d_{\text{skeleton}} - w)^2\right]$$
+
+weighted at λ = 10 to strongly constrain predictions to the maze geometry.
 
 ### Data augmentation
 Two techniques are applied **during training only**:
@@ -43,7 +47,9 @@ Two techniques are applied **during training only**:
 Per-shank **1-D CNN** encoders compress each spike waveform into a 64-dim embedding. A **Transformer encoder** (2 layers, 4 heads) then attends across all spikes in the window, learning cross-shank interactions that linear decoders cannot capture (+12% zone accuracy vs. SVM on single shank).
 
 ### Ensemble & uncertainty
-**5-fold cross-validation** trains 5 independent models. At inference, predictions are averaged and uncertainty is decomposed into **aleatoric** (intrinsic signal noise, from the per-head sigma outputs) and **epistemic** (model uncertainty, from the variance of predictions across folds).
+**5-fold cross-validation** trains 5 independent models. At inference, predictions are averaged and uncertainty is decomposed as:
+
+$$\sigma^2_{\text{total}} = \underbrace{\mathbb{E}[\sigma^2_k]}_{\text{aleatoric}} + \underbrace{\text{Var}[\mu_k]}_{\text{epistemic}}$$
 
 ---
 
