@@ -1,5 +1,7 @@
 <div align="center">
   <img src="ICM.png" alt="Institut du Cerveau — ICM" width="240"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="hacktion.png" alt="Hacktion" width="240"/>
   <br/><br/>
 
   # Neural Position Decoding — Spike Transformer
