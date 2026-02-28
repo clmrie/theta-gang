@@ -57,3 +57,4 @@ N_FOLDS      = 5        # number of cross-validation folds
 # ── Loss weights ──────────────────────────────────────────────────────────────
 LAMBDA_D    = 1.0       # weight on curvilinear-distance MSE loss
 LAMBDA_FEAS = 10.0      # weight on feasibility (corridor adherence) loss
+

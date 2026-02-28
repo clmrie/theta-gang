@@ -115,3 +115,4 @@ def print_geometry_stats(positions, curvilinear_d, zone_labels):
     print(f"\nDistance to skeleton : mean={dist_to_skel.mean():.4f}  "
           f"max={dist_to_skel.max():.4f}  "
           f"in corridor={( dist_to_skel < CORRIDOR_HALF_WIDTH).mean():.1%}")
+

@@ -81,3 +81,4 @@ python scripts/evaluate.py         # Evaluation + all figures → figures/evalua
 <div align="center">
   <sub>Theta Gang · Institut du Cerveau (ICM) · 2026</sub>
 </div>
+

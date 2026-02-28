@@ -52,3 +52,4 @@ class FeasibilityLoss(nn.Module):
 
         min_dist = torch.stack(distances, dim=1).min(dim=1).values
         return torch.relu(min_dist - self.corridor_half_width).pow(2).mean()
+

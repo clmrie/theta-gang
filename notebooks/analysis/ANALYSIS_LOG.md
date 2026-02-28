@@ -153,3 +153,4 @@
 | 9 | Top arm 2× plus fréquent + hardest | `class_weight=[2.22, 0.91, 2.16]` + geodesic loss |
 | 10 | Position τ½ > 160ms · neural τ½ ≈ 6ms | Kalman `Q ≈ 0.001` · pas de RNN |
 | 11 | Vitesse et direction ≠ informatifs | Ne pas ajouter speed/direction comme features |
+

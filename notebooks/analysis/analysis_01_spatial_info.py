@@ -533,3 +533,4 @@ for g in range(N_GROUPS):
           f"{corr_table[g,0]:<10.3f} {corr_table[g,1]:<10.3f}")
 print(f"\n→ Shank le plus informatif (bits/spike) : Shank {best_g}")
 print(f"→ Figures sauvegardées dans : {OUT_DIR}/")
+

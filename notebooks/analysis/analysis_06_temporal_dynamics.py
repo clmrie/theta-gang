@@ -468,3 +468,4 @@ print(f"\nkNN error by speed quartile × arm:")
 for a in range(n_arms):
     print(f"  {arm_names[a]:6s}: {' '.join(f'{err_mat[a,q]:.3f}' for q in range(n_q))}")
 print("\nDone.")
+

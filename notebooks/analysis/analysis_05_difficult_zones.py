@@ -391,3 +391,4 @@ hard_arm = get_arm(np.stack([(hi2 + 0.5) / GRID, (hj2 + 0.5) / GRID], axis=1))
 for a, aname in enumerate(["Left", "Top", "Right"]):
     print(f"    {aname}: {(hard_arm == a).sum()} cellules dans le top-25% difficile")
 print("\nDone.")
+

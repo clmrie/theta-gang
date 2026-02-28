@@ -430,3 +430,4 @@ for n, e in zip(pca_ns, pca_errs):
 print(f"\nTop-5 canaux ρ(y):")
 for t in np.argsort(ch_rho_y)[-5:][::-1]:
     print(f"  {ch_labels[t].replace(chr(10),' ')}: ρ(y)={ch_rho_y[t]:.4f}  F={ch_fstat[t]:.1f}")
+

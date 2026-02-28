@@ -239,3 +239,4 @@ def build_model(nGroups: int, nChannelsPerGroup: list) -> SpikeTransformerHierar
           f"({cfg.N_ZONES} zones, {cfg.NUM_LAYERS} transformer layers, "
           f"embed_dim={cfg.EMBED_DIM})")
     return model
+
