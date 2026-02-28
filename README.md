@@ -17,7 +17,7 @@
 
 Decode the 2D position of a mouse navigating a U-shaped maze from short windows (108 ms) of multi-shank extracellular spike recordings. The model must also output **calibrated uncertainty** and keep predictions inside the maze corridor.
 
-**Baseline** (k-NN, PCA-80): median Euclidean error = 0.337 · **Dataset**: 22,974 moving windows, 4 shanks [6, 4, 6, 4] channels.
+**Baseline** (k-NN, PCA-80): median Euclidean error = 0.337
 
 ---
 
