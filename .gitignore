@@ -36,3 +36,6 @@ env/
 .idea/
 *.swp
 *.swo
+
+
+.claude
