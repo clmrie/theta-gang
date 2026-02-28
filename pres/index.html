@@ -1064,10 +1064,11 @@
   <button class="nav-dot" data-slide="9"></button>
   <button class="nav-dot" data-slide="10"></button>
   <button class="nav-dot" data-slide="11"></button>
+  <button class="nav-dot" data-slide="12"></button>
 </nav>
 
 <div class="slide-counter">
-  <span id="current-slide">1</span> / <span id="total-slides">12</span>
+  <span id="current-slide">1</span> / <span id="total-slides">13</span>
 </div>
 
 <div class="nav-hint">&#8595; scroll or arrow keys</div>
@@ -1247,7 +1248,12 @@
         </p>
       </div>
       <div class="visual-col" style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-        <img src="graphs/segmentation.png" alt="3-zone segmentation" style="width: 420px; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(175, 70, 53, 0.1);">
+        <div style="position: relative; width: 420px;">
+          <img src="graphs/segmentation.png" alt="3-zone segmentation" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(175, 70, 53, 0.1);">
+          <svg viewBox="0 0 100 100" style="position: absolute; top: 7%; left: 10%; width: 78%; height: 86%; pointer-events: none;">
+            <polyline points="17,100 17,10 84,10 84,100" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <div class="zone-legend">
           <div class="zone-legend-item">
             <span class="zone-dot" style="background: #4285f4;"></span>
@@ -1403,11 +1409,11 @@
       <div class="smooth-videos">
         <div class="smooth-video-card">
           <div class="smooth-video-label">Raw predictions</div>
-          <video src="videos_demo/carré brute.mov" autoplay loop muted playsinline></video>
+          <video id="vid-raw" src="videos_demo/carré brute.mov" autoplay muted playsinline></video>
         </div>
         <div class="smooth-video-card">
           <div class="smooth-video-label">After smoothing</div>
-          <video src="videos_demo/carré lissé.mov" autoplay loop muted playsinline></video>
+          <video id="vid-smooth" src="videos_demo/carré lissé.mov" autoplay muted playsinline></video>
         </div>
       </div>
     </div>
@@ -1473,8 +1479,18 @@
     </div>
   </section>
 
-  <!-- SLIDE 12: Thanks -->
+  <!-- SLIDE 12: Smoothed Predictions -->
   <section class="slide" data-index="11">
+    <div style="display: flex; flex-direction: column; align-items: center; height: 100%; padding: 8px 0 0;">
+      <h2 class="slide-title" style="text-align: center; margin-bottom: 4px; flex-shrink: 0;">Smoothed Predictions</h2>
+      <div style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; width: 100vw; padding: 0 10px;">
+        <img src="graphs/smoothed.png" alt="Smoothed predictions" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 13: Thanks -->
+  <section class="slide" data-index="12">
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 30px;">
       <h2 style="font-family: 'Instrument Sans', sans-serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center;">
         Thanks for your attention!<br>Questions?
@@ -1594,6 +1610,24 @@
     if (document.exitFullscreen) document.exitFullscreen();
     else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
   });
+
+  // Sync smoothing videos: wait for both to end, then restart together
+  const vidRaw = document.getElementById('vid-raw');
+  const vidSmooth = document.getElementById('vid-smooth');
+  let rawEnded = false, smoothEnded = false;
+
+  function restartBoth() {
+    if (rawEnded && smoothEnded) {
+      rawEnded = false;
+      smoothEnded = false;
+      vidRaw.currentTime = 0;
+      vidSmooth.currentTime = 0;
+      vidRaw.play();
+      vidSmooth.play();
+    }
+  }
+  vidRaw.addEventListener('ended', () => { rawEnded = true; restartBoth(); });
+  vidSmooth.addEventListener('ended', () => { smoothEnded = true; restartBoth(); });
 </script>
 
 </body>
