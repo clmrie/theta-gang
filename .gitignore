@@ -38,4 +38,4 @@ env/
 *.swo
 
 
-.claude
+./claude
