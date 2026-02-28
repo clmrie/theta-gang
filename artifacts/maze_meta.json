@@ -1,0 +1,19 @@
+{
+  "mouse": "M1199_PAG",
+  "n_total": 62257,
+  "n_moving": 22974,
+  "n_train": 20676,
+  "min_occ": 5,
+  "resolutions": {
+    "50": {
+      "n_valid_cells": 1277,
+      "occ_min": 5,
+      "occ_max": 74
+    },
+    "100": {
+      "n_valid_cells": 1649,
+      "occ_min": 5,
+      "occ_max": 41
+    }
+  }
+}
