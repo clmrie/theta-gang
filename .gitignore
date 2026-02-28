@@ -1,19 +1,42 @@
-# Data
-dataset/
+# ── Data (large files, not committed) ────────────────────────────────────────
+data/*.parquet
+data/*.npy
+data/*.json
 
-# Python
+# ── Model checkpoints ─────────────────────────────────────────────────────────
+checkpoints/*.pt
+checkpoints/*.pth
+
+# ── Output predictions ────────────────────────────────────────────────────────
+outputs/*.npy
+
+# ── Python cache ──────────────────────────────────────────────────────────────
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+.Python
 
-# Env
+# ── Virtual environments ──────────────────────────────────────────────────────
 .venv/
+venv/
+env/
 .env
 
-# Claude
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+**/.DS_Store
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/
 
-# OS
-.DS_Store
-
-# Lockfile (large, reproducible from pyproject.toml)
-uv.lock
