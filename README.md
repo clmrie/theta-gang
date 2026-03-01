@@ -20,9 +20,24 @@ Decode the 2D position of a mouse navigating a U-shaped maze from 108 ms windows
 
 | | Baseline (k-NN + PCA-80) | Spike Transformer |
 |---|---|---|
-| Median Euclidean error | 0.337 | **0.118** |
-| Zone classification | — | 90.2% |
-| Predictions inside corridor | — | 97.8% |
+| MSE (x, y) | — | **0.03** |
+| Mean Euclidean error | — | **0.22** |
+| Zone classification | — | 82% |
+| Inference latency | — | 4.5 ms |
+
+---
+
+## Results
+
+<p align="center">
+  <img src="figures/reference/06_hierarchical_classification.png" width="700"/>
+</p>
+<p align="center"><em>Hierarchical 3-zone classification & mixture of experts</em></p>
+
+<p align="center">
+  <img src="figures/reference/07_uncertainty.png" width="700"/>
+</p>
+<p align="center"><em>Predictive uncertainty: aleatoric + epistemic decomposition with calibration</em></p>
 
 ---
 
