@@ -1,19 +1,16 @@
 [project]
-name = "HackathonStarter"
+name = "spike-transformer"
 version = "0.1.0"
-description = "Starter template for HacktionPotential - Brain in Real Time"
+description = "Neural position decoding from extracellular spike recordings using a hierarchical Transformer"
 readme = "README.md"
 requires-python = ">=3.10"
+license = {text = "MIT"}
 dependencies = [
-    "ipykernel>=6.29.5",
-    "ipympl>=0.9.7",
-    "jupyter>=1.1.1",
-    "matplotlib>=3.6.2",
-    "numba>=0.60.0",
-    "numpy<=2",
-    "pandas>=2.1.0",
-    "pyarrow>=23.0.0",
-    "pydot>=4.0.1",
-    "tensorflow",
-    "torch>=2.10.0",
+    "torch>=2.0.0",
+    "numpy>=1.24.0,<2",
+    "pandas>=2.0.0",
+    "pyarrow>=12.0.0",
+    "scikit-learn>=1.3.0",
+    "scipy>=1.11.0",
+    "matplotlib>=3.7.0",
 ]
