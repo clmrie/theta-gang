@@ -21,7 +21,7 @@ Decode the 2D position of a mouse navigating a U-shaped maze from 108 ms windows
 | | Baseline (k-NN + PCA-80) | Spike Transformer |
 |---|---|---|
 | MSE (x, y) | — | **0.03** |
-| Mean Euclidean error | — | **0.22** |
+| Mean Euclidean error | 0.337 | **0.22** |
 | Zone classification | — | 82% |
 | Inference latency | — | 4.5 ms |
 
