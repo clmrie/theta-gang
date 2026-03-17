@@ -26,14 +26,14 @@ Real-time decoding of a mouse's 2D position in a U-shaped maze from **108 ms** w
 
 ### Our model outperforms every baseline by a wide margin
 
-| | Naive (mean) | Ridge Regression | k-NN + PCA | **${\color{red}\text{Spike Transformer}}$** |
+| | Naive (mean) | Ridge Regression | k-NN + PCA | **🔴 Spike Transformer** |
 |:---|:---:|:---:|:---:|:---:|
-| **MSE** | 0.094 | 0.085 | 0.100 | **${\color{red}0.030}$** |
-| **Euclidean Error** | 0.422 | 0.391 | 0.403 | **${\color{red}\text{\textasciitilde 0.22}}$** |
-| **R² (x)** | -0.00 | 0.05 | -0.16 | **${\color{red}0.65+}$** |
-| **R² (y)** | -0.02 | 0.11 | -0.02 | **${\color{red}0.72+}$** |
-| **Zone Accuracy** | 39.7% | 49.3% | 43.9% | **${\color{red}82\%}$** |
-| **Corridor Adherence** | 0.0% | 17.7% | 49.2% | **${\color{red}95\%+}$** |
+| **MSE** | 0.094 | 0.085 | 0.100 | **0.030** |
+| **Euclidean Error** | 0.422 | 0.391 | 0.403 | **~0.22** |
+| **R² (x)** | -0.00 | 0.05 | -0.16 | **0.65+** |
+| **R² (y)** | -0.02 | 0.11 | -0.02 | **0.72+** |
+| **Zone Accuracy** | 39.7% | 49.3% | 43.9% | **82%** |
+| **Corridor Adherence** | 0.0% | 17.7% | 49.2% | **95%+** |
 
 </div>
 
