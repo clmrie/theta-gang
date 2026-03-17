@@ -2,6 +2,7 @@
 data/*.parquet
 data/*.npy
 data/*.json
+*.tfrec
 
 # ── Model checkpoints ─────────────────────────────────────────────────────────
 checkpoints/*.pt
