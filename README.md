@@ -1,10 +1,10 @@
 <div align="center">
-  <img src="ICM.png" alt="Institut du Cerveau — ICM" height="80" style="vertical-align:middle"/>
+  <img src="ICM.png" alt="Institut du Cerveau - ICM" height="80" style="vertical-align:middle"/>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="hacktion.png" alt="Hacktion" height="80" style="vertical-align:middle"/>
   <br/><br/>
 
-  # Spike Transformer — Neural Position Decoding
+  # Spike Transformer - Neural Position Decoding
   **Theta Gang · ICM Hackathon 2026**
 
   ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
@@ -16,7 +16,7 @@
 
 ---
 
-Real-time decoding of a mouse's 2D position in a U-shaped maze from **108 ms** windows of multi-shank silicon probe recordings. Our hierarchical Spike Transformer jointly classifies the maze zone, regresses position with calibrated uncertainty, and constrains predictions to the corridor geometry — achieving a **3x improvement** over classical baselines.
+Real-time decoding of a mouse's 2D position in a U-shaped maze from **108 ms** windows of multi-shank silicon probe recordings. Our Spike Transformer classifies the maze zone, regresses position with calibrated uncertainty, and constrains predictions to the corridor geometry, achieving a **3x improvement** over classical baselines.
 
 ---
 
@@ -26,18 +26,18 @@ Real-time decoding of a mouse's 2D position in a U-shaped maze from **108 ms** w
 
 ### Our model outperforms every baseline by a wide margin
 
-| | Naive (mean) | Ridge Regression | k-NN + PCA | **Spike Transformer** |
+| | Naive (mean) | Ridge Regression | k-NN + PCA | **${\color{red}\text{Spike Transformer}}$** |
 |:---|:---:|:---:|:---:|:---:|
-| **MSE** | 0.094 | 0.085 | 0.100 | **0.030** |
-| **Euclidean Error** | 0.422 | 0.391 | 0.403 | **~0.22** |
-| **R² (x)** | -0.00 | 0.05 | -0.16 | **0.65+** |
-| **R² (y)** | -0.02 | 0.11 | -0.02 | **0.72+** |
-| **Zone Accuracy** | 39.7% | 49.3% | 43.9% | **82%** |
-| **Corridor Adherence** | 0.0% | 17.7% | 49.2% | **95%+** |
+| **MSE** | 0.094 | 0.085 | 0.100 | **${\color{red}0.030}$** |
+| **Euclidean Error** | 0.422 | 0.391 | 0.403 | **${\color{red}\text{\textasciitilde 0.22}}$** |
+| **R² (x)** | -0.00 | 0.05 | -0.16 | **${\color{red}0.65+}$** |
+| **R² (y)** | -0.02 | 0.11 | -0.02 | **${\color{red}0.72+}$** |
+| **Zone Accuracy** | 39.7% | 49.3% | 43.9% | **${\color{red}82\%}$** |
+| **Corridor Adherence** | 0.0% | 17.7% | 49.2% | **${\color{red}95\%+}$** |
 
 </div>
 
-> **65% lower MSE** than the best classical baseline (Ridge). Baselines hover near chance level (R² ~ 0), while our Transformer learns rich spike-to-position mappings that simple features fundamentally cannot capture.
+> **65% lower MSE** than the best classical baseline (Ridge). Baselines sit near chance level (R² ~ 0), while our Transformer picks up spike-to-position patterns that summary statistics miss.
 
 ---
 
@@ -45,25 +45,11 @@ Real-time decoding of a mouse's 2D position in a U-shaped maze from **108 ms** w
 
 Classical approaches (Ridge, k-NN) reduce spike data to hand-crafted summary statistics (spike counts, amplitude means) and lose the temporal structure that encodes position. Our approach:
 
-1. **Processes raw waveforms end-to-end** — no manual feature engineering
-2. **Attends to spike ordering** — the Transformer captures inter-spike temporal patterns across shanks
-3. **Geometry-aware losses** — a feasibility loss constrains predictions to the physical corridor, yielding 95%+ corridor adherence vs. 0-49% for baselines
-4. **Hierarchical zone classification** — mixture-of-experts specializes per maze arm, boosting zone accuracy to 82%
-5. **Calibrated uncertainty** — aleatoric + epistemic decomposition provides reliable confidence estimates
-
----
-
-## Architecture
-
-<p align="center">
-  <img src="figures/reference/02_architecture.png" width="700"/>
-</p>
-
-- Per-shank waveform embeddings with null-spike trick for variable-length sequences
-- Multi-head self-attention over the full spike sequence
-- Masked average pooling into a fixed-size context vector
-- Joint regression head (x, y) + zone classification head
-- Combined loss: MSE + curvilinear distance + feasibility + cross-entropy
+1. **Processes raw waveforms end-to-end** - no manual feature engineering
+2. **Attends to spike ordering** - the Transformer captures inter-spike temporal patterns across shanks
+3. **Geometry-aware losses** - a feasibility loss constrains predictions to the physical corridor, giving 95%+ corridor adherence vs. 0-49% for baselines
+4. **Hierarchical zone classification** - mixture-of-experts specializes per maze arm, reaching 82% zone accuracy
+5. **Calibrated uncertainty** - aleatoric + epistemic decomposition for reliable confidence estimates
 
 ---
 
@@ -91,7 +77,7 @@ Classical approaches (Ridge, k-NN) reduce spike data to hand-crafted summary sta
 ```bash
 pip install -r requirements.txt
 
-# Place data in data/ (parquet + JSON — not included in repo)
+# Place data in data/ (parquet + JSON - not included in repo)
 python scripts/baselines.py         # Run baseline comparison
 python scripts/train.py             # 5-fold CV training
 python scripts/evaluate.py          # Ensemble evaluation + figures
