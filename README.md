@@ -39,6 +39,16 @@ Real-time decoding of a mouse's 2D position in a U-shaped maze from **108 ms** w
 
 > **65% lower MSE** than the best classical baseline (Ridge). Baselines sit near chance level (R² ~ 0), while our Transformer picks up spike-to-position patterns that summary statistics miss.
 
+<p align="center">
+  <img src="figures/readme/comparison_error.png" width="700"/>
+</p>
+<p align="center">
+  <img src="figures/readme/comparison_r2.png" width="700"/>
+</p>
+<p align="center">
+  <img src="figures/readme/comparison_classification.png" width="700"/>
+</p>
+
 ---
 
 ## Why it works
